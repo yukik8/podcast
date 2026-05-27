@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>早稲女の放課後 — Podcast</title>
+  <meta name="description" content="全く異なるバックグラウンドを持つ早稲田大学出身の女子3人組による、笑いあり涙あり漫才ありの人生トークポッドキャスト">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Noto+Sans+JP:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --hot: #FF00CC;
+      --pink: #FF69B4;
+      --light: #FFB3E6;
+      --glow: rgba(255, 0, 204, 0.6);
+      --glow-soft: rgba(255, 0, 204, 0.15);
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: #000;
+      color: #fff;
+      font-family: 'Noto Sans JP', sans-serif;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ── CURSOR ─────────────────────────────── */
+    #cur {
+      width: 10px; height: 10px;
+      background: var(--hot);
+      border-radius: 50%;
+      position: fixed; top: 0; left: 0;
+      pointer-events: none; z-index: 9999;
+      box-shadow: 0 0 12px var(--hot), 0 0 24px var(--hot);
+      transition: transform .1s;
+    }
+    #cur-ring {
+      width: 28px; height: 28px;
+      border: 1px solid rgba(255,0,204,.5);
+      border-radius: 50%;
+      position: fixed; top: 0; left: 0;
+      pointer-events: none; z-index: 9998;
+    }
+
+    /* ── CANVAS ─────────────────────────────── */
+    #cvs {
+      position: fixed; inset: 0;
+      pointer-events: none; z-index: 0;
+    }
+
+    /* ── SCAN-LINE OVERLAY ──────────────────── */
+    body::after {
+      content: '';
+      position: fixed; inset: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0,0,0,.06) 0px,
+        rgba(0,0,0,.06) 1px,
+        transparent 1px,
+        transparent 4px
+      );
+      pointer-events: none; z-index: 200;
+    }
+
+    /* ── NAV ────────────────────────────────── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1.4rem 5vw;
+      background: linear-gradient(to bottom, rgba(0,0,0,.9) 0%, transparent 100%);
+      backdrop-filter: blur(2px);
+    }
+    .nav-logo {
+      font-family: 'Dela Gothic One', sans-serif;
+      font-size: 1rem; color: var(--hot);
+      text-shadow: 0 0 10px var(--hot), 0 0 25px var(--hot);
+      text-decoration: none;
+    }
+    nav ul { list-style: none; display: flex; gap: 2.5rem; }
+    nav a {
+      color: rgba(255,255,255,.55);
+      text-decoration: none; font-size: .78rem;
+      letter-spacing: .15em; font-weight: 500;
+      transition: color .3s, text-shadow .3s;
+    }
+    nav a:hover { color: var(--hot); text-shadow: 0 0 10px var(--hot); }
+
+    /* ── HERO ───────────────────────────────── */
+    .hero {
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      position: relative; overflow: hidden;
+    }
+
+    .hero-radial {
+      position: absolute; inset: 0;
+      background: radial-gradient(ellipse 70% 60% at 50% 50%,
+        rgba(255,0,204,.18) 0%, transparent 70%);
+    }
+
+    .orb {
+      position: absolute; border-radius: 50%;
+      filter: blur(80px); pointer-events: none;
+    }
+    .orb-a { width: 500px; height: 500px; background: var(--hot);
+      top: -160px; right: -160px; opacity: .18;
+      animation: drift 10s ease-in-out infinite; }
+    .orb-b { width: 350px; height: 350px; background: var(--pink);
+      bottom: -80px; left: -80px; opacity: .14;
+      animation: drift 13s ease-in-out infinite reverse; }
+    .orb-c { width: 220px; height: 220px; background: var(--hot);
+      top: 40%; left: 8%; opacity: .1;
+      animation: drift 9s ease-in-out 4s infinite; }
+
+    @keyframes drift {
+      0%,100% { transform: translate(0,0) scale(1); }
+      50%      { transform: translate(20px,-30px) scale(1.08); }
+    }
+
+    /* grid dot bg */
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image: radial-gradient(circle, rgba(255,0,204,.12) 1px, transparent 1px);
+      background-size: 40px 40px;
+      animation: gridFade 4s ease-in-out infinite alternate;
+    }
+    @keyframes gridFade { from { opacity: .4; } to { opacity: 1; } }
+
+    .hero-inner {
+      position: relative; z-index: 2;
+      display: flex; flex-direction: column;
+      align-items: center; gap: 2.2rem;
+      text-align: center; padding: 2rem;
+    }
+
+    .hero-logo {
+      width: 260px; height: 260px;
+      border-radius: 2rem;
+      animation: logoGlow 3s ease-in-out infinite, riseIn 1s ease forwards;
+      opacity: 0;
+    }
+    @keyframes logoGlow {
+      0%,100% { filter: drop-shadow(0 0 18px rgba(255,0,204,.8)) drop-shadow(0 0 36px rgba(255,0,204,.35)); }
+      50%      { filter: drop-shadow(0 0 30px #FF00CC) drop-shadow(0 0 70px rgba(255,0,204,.5)) drop-shadow(0 0 120px rgba(255,0,204,.2)); }
+    }
+
+    .hero-title {
+      font-family: 'Dela Gothic One', sans-serif;
+      font-size: clamp(2.8rem, 8vw, 5.5rem);
+      line-height: 1.05;
+      text-shadow: 0 0 20px var(--hot), 0 0 50px var(--hot), 0 0 90px rgba(255,0,204,.4);
+      animation: flicker 7s infinite, riseIn 1s .2s ease forwards;
+      opacity: 0;
+    }
+    @keyframes flicker {
+      0%,93%,95%,97%,100% { opacity: 1; }
+      94%,96%              { opacity: .75; }
+    }
+
+    .hero-catch {
+      font-size: clamp(.85rem, 2vw, 1.05rem);
+      color: var(--light); font-weight: 300;
+      letter-spacing: .12em; line-height: 2;
+      animation: riseIn 1s .4s ease forwards; opacity: 0;
+    }
+
+    .hero-tags {
+      display: flex; gap: .65rem; flex-wrap: wrap; justify-content: center;
+      animation: riseIn 1s .6s ease forwards; opacity: 0;
+    }
+    .tag {
+      padding: .35rem .9rem;
+      border: 1px solid var(--hot); border-radius: 100px;
+      font-size: .75rem; color: var(--hot); letter-spacing: .1em;
+      box-shadow: 0 0 8px rgba(255,0,204,.3), inset 0 0 8px rgba(255,0,204,.05);
+      transition: all .3s; cursor: default;
+    }
+    .tag:hover {
+      background: var(--hot); color: #000;
+      box-shadow: 0 0 20px var(--hot), 0 0 40px rgba(255,0,204,.4);
+    }
+
+    .hero-cta {
+      display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;
+      animation: riseIn 1s .8s ease forwards; opacity: 0;
+    }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: .85rem 2.2rem;
+      background: var(--hot); color: #000;
+      font-weight: 700; font-size: .9rem; letter-spacing: .08em;
+      border-radius: 100px; text-decoration: none;
+      box-shadow: 0 0 20px var(--hot), 0 0 40px rgba(255,0,204,.3);
+      transition: all .3s; font-family: 'Noto Sans JP', sans-serif;
+    }
+    .btn-primary:hover {
+      transform: translateY(-2px) scale(1.03);
+      box-shadow: 0 0 30px var(--hot), 0 0 60px rgba(255,0,204,.5);
+    }
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: .85rem 2.2rem;
+      border: 1px solid rgba(255,0,204,.4); color: var(--light);
+      border-radius: 100px; text-decoration: none;
+      font-size: .9rem; letter-spacing: .08em;
+      transition: all .3s; font-family: 'Noto Sans JP', sans-serif;
+    }
+    .btn-ghost:hover {
+      border-color: var(--hot); color: var(--hot);
+      box-shadow: 0 0 15px rgba(255,0,204,.2);
+    }
+
+    .scroll-cue {
+      position: absolute; bottom: 2rem; left: 50%; transform: translateX(-50%);
+      display: flex; flex-direction: column; align-items: center; gap: .5rem;
+      color: rgba(255,179,230,.4); font-size: .7rem; letter-spacing: .25em;
+      animation: riseIn 1s 1.2s ease forwards, bobble 2.5s 2.5s ease-in-out infinite;
+      opacity: 0;
+    }
+    .scroll-cue::after {
+      content: '';
+      width: 1px; height: 44px;
+      background: linear-gradient(to bottom, var(--hot), transparent);
+    }
+    @keyframes bobble {
+      0%,100% { transform: translateX(-50%) translateY(0); }
+      50%      { transform: translateX(-50%) translateY(8px); }
+    }
+
+    @keyframes riseIn {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── NEON DIVIDER ───────────────────────── */
+    .neon-hr {
+      width: 100%; height: 1px;
+      background: linear-gradient(to right, transparent, var(--hot), var(--pink), transparent);
+      box-shadow: 0 0 12px var(--hot);
+      border: none;
+    }
+
+    /* ── SECTIONS ───────────────────────────── */
+    .wrap {
+      max-width: 1160px; margin: 0 auto;
+      padding: 7rem 5vw;
+      position: relative; z-index: 10;
+    }
+
+    .eyebrow {
+      font-size: .7rem; letter-spacing: .35em;
+      color: var(--hot); text-shadow: 0 0 8px var(--hot);
+      margin-bottom: .9rem;
+    }
+    .sec-title {
+      font-family: 'Dela Gothic One', sans-serif;
+      font-size: clamp(2.2rem, 4.5vw, 3.5rem);
+      line-height: 1.1; margin-bottom: 3.5rem;
+    }
+
+    /* ── ABOUT ──────────────────────────────── */
+    .about-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 5rem; align-items: center;
+    }
+    .about-body p {
+      color: rgba(255,255,255,.72); line-height: 2;
+      font-size: .95rem; font-weight: 300;
+      margin-bottom: 1.4rem;
+    }
+
+    .members { display: flex; flex-direction: column; gap: .85rem; margin-top: 2.2rem; }
+    .member {
+      display: flex; align-items: center; gap: 1rem;
+      padding: 1rem 1.4rem;
+      border: 1px solid rgba(255,0,204,.22);
+      border-radius: .85rem;
+      transition: border-color .3s, box-shadow .3s, transform .3s;
+    }
+    .member:hover {
+      border-color: var(--hot);
+      box-shadow: 0 0 16px rgba(255,0,204,.18);
+      transform: translateX(6px);
+    }
+    .member-avatar {
+      width: 42px; height: 42px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--hot), var(--pink));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.3rem; flex-shrink: 0;
+    }
+    .member-name {
+      font-family: 'Dela Gothic One', sans-serif;
+      font-size: .95rem; color: var(--pink);
+    }
+    .member-sub { font-size: .78rem; color: rgba(255,255,255,.38); margin-top: .15rem; }
+
+    /* speech bubble */
+    .bubble {
+      position: relative;
+      background: rgba(255,0,204,.04);
+      border: 1.5px solid var(--hot);
+      border-radius: 1.8rem 1.8rem 1.8rem 0;
+      padding: 2.5rem 2.2rem;
+      box-shadow: 0 0 30px rgba(255,0,204,.15), inset 0 0 30px rgba(255,0,204,.04);
+    }
+    .bubble::after {
+      content: '';
+      position: absolute; bottom: -22px; left: 0;
+      border-left: 22px solid var(--hot);
+      border-bottom: 22px solid transparent;
+    }
+    .bubble-text {
+      font-family: 'Dela Gothic One', sans-serif;
+      font-size: 1.45rem; line-height: 1.7;
+      color: var(--light);
+      text-shadow: 0 0 12px rgba(255,179,230,.4);
+    }
+
+    /* ── EPISODES ───────────────────────────── */
+    .episodes-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 1.8rem;
+    }
+
+    .ep-card {
+      position: relative;
+      background: rgba(255,0,204,.025);
+      border: 1px solid rgba(255,0,204,.2);
+      border-radius: 1.3rem; padding: 2rem;
+      transition: border-color .4s, box-shadow .4s, transform .4s;
+      overflow: hidden; cursor: pointer;
+    }
+    .ep-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(to right, var(--hot), var(--pink));
+      transform: scaleX(0); transform-origin: left;
+      transition: transform .4s;
+    }
+    .ep-card:hover {
+      border-color: var(--hot);
+      box-shadow: 0 0 30px rgba(255,0,204,.12), 0 24px 48px rgba(0,0,0,.6);
+      transform: translateY(-6px);
+    }
+    .ep-card:hover::before { transform: scaleX(1); }
+
+    .ep-num {
+      font-family: 'Dela Gothic One', sans-serif;
+      font-size: .7rem; color: var(--hot); letter-spacing: .25em; margin-bottom: .9rem;
+    }
+    .ep-title {
+      font-family: 'Dela Gothic One', sans-serif;
+      font-size: 1.2rem; line-height: 1.5; margin-bottom: .7rem;
+    }
+    .ep-desc {
+      color: rgba(255,255,255,.45); font-size: .83rem; line-height: 1.8;
+      margin-bottom: 1.5rem;
+    }
+    .ep-foot {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: .72rem; color: rgba(255,255,255,.28);
+    }
+    .play {
+      width: 34px; height: 34px; border-radius: 50%;
+      border: 1px solid var(--hot);
+      display: flex; align-items: center; justify-content: center;
+      color: var(--hot); font-size: .8rem;
+      box-shadow: 0 0 8px rgba(255,0,204,.2);
+      transition: all .3s; text-decoration: none;
+    }
+    .play:hover { background: var(--hot); color: #000; box-shadow: 0 0 20px var(--hot); }
+
+    /* ── LISTEN ON ──────────────────────────── */
+    .listen-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 1.4rem;
+    }
+    .listen-card {
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: .9rem; padding: 2.4rem 1.5rem;
+      border: 1px solid rgba(255,0,204,.18);
+      border-radius: 1.3rem;
+      text-decoration: none; color: #fff;
+      background: rgba(255,0,204,.02);
+      transition: all .4s;
+    }
+    .listen-card:hover {
+      border-color: var(--hot);
+      box-shadow: 0 0 28px rgba(255,0,204,.18);
+      transform: translateY(-5px) scale(1.02);
+      background: rgba(255,0,204,.07);
+    }
+    .listen-card svg { transition: filter .3s; }
+    .listen-card:hover svg { filter: drop-shadow(0 0 6px var(--hot)); }
+    .listen-label { font-weight: 700; font-size: .88rem; letter-spacing: .05em; }
+    .listen-sub { font-size: .72rem; color: rgba(255,255,255,.35); }
+    .listen-go {
+      font-size: .72rem; color: var(--hot); opacity: 0;
+      transition: opacity .3s; letter-spacing: .1em;
+    }
+    .listen-card:hover .listen-go { opacity: 1; }
+
+    /* ── SNS ────────────────────────────────── */
+    .sns-section { text-align: center; }
+    .sns-tagline {
+      color: rgba(255,255,255,.48); line-height: 2;
+      max-width: 480px; margin: 0 auto 3rem;
+      font-size: .9rem; font-weight: 300;
+    }
+    .sns-grid {
+      display: flex; justify-content: center;
+      gap: 1.4rem; flex-wrap: wrap;
+    }
+    .sns-card {
+      display: flex; flex-direction: column; align-items: center;
+      gap: .7rem; padding: 1.8rem 2rem;
+      border: 1px solid rgba(255,0,204,.14);
+      border-radius: 1rem; text-decoration: none;
+      color: var(--light); min-width: 130px;
+      transition: all .35s; font-size: .8rem; letter-spacing: .1em;
+    }
+    .sns-card svg { transition: filter .3s; }
+    .sns-card:hover {
+      color: var(--hot); border-color: var(--hot);
+      text-shadow: 0 0 10px var(--hot);
+      box-shadow: 0 0 20px rgba(255,0,204,.12);
+      transform: translateY(-4px);
+    }
+    .sns-card:hover svg { filter: drop-shadow(0 0 6px var(--hot)); }
+
+    .hashtag {
+      margin-top: 3rem;
+      font-family: 'Dela Gothic One', sans-serif;
+      font-size: 1.4rem;
+      color: rgba(255,0,204,.35);
+      letter-spacing: .1em;
+      transition: color .3s;
+    }
+    .hashtag:hover { color: var(--hot); text-shadow: 0 0 20px var(--hot); cursor: default; }
+
+    /* ── FOOTER ─────────────────────────────── */
+    .footer {
+      border-top: 1px solid rgba(255,0,204,.12);
+      padding: 2.5rem 5vw;
+      display: flex; justify-content: space-between; align-items: center;
+      max-width: 1160px; margin: 0 auto;
+    }
+    .footer-logo {
+      font-family: 'Dela Gothic One', sans-serif;
+      font-size: 1.1rem; color: var(--hot);
+      text-shadow: 0 0 10px var(--hot);
+    }
+    .footer-copy { color: rgba(255,255,255,.22); font-size: .75rem; }
+
+    /* ── RESPONSIVE ─────────────────────────── */
+    @media (max-width: 768px) {
+      nav ul { gap: 1.2rem; }
+      nav ul li:nth-child(3), nav ul li:nth-child(4) { display: none; }
+      .about-grid { grid-template-columns: 1fr; gap: 3rem; }
+      .footer { flex-direction: column; gap: 1rem; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="cur"></div>
+<div id="cur-ring"></div>
+<canvas id="cvs"></canvas>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">早稲女の放課後</a>
+  <ul>
+    <li><a href="#about">ABOUT</a></li>
+    <li><a href="#episodes">EPISODES</a></li>
+    <li><a href="#listen">LISTEN</a></li>
+    <li><a href="#sns">SNS</a></li>
+  </ul>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-radial"></div>
+  <div class="orb orb-a"></div>
+  <div class="orb orb-b"></div>
+  <div class="orb orb-c"></div>
+
+  <div class="hero-inner">
+    <img src="logo.png" alt="早稲女の放課後" class="hero-logo">
+    <h1 class="hero-title">早稲女の放課後</h1>
+    <p class="hero-catch">
+      全く異なるバックグラウンドを持つ早稲田大学出身の女子3人組による<br>
+      笑いあり 涙あり 漫才ありの人生トークポッドキャスト
+    </p>
+    <div class="hero-tags">
+      <span class="tag"># 早稲田</span>
+      <span class="tag"># 女子3人組</span>
+      <span class="tag"># 人生トーク</span>
+      <span class="tag"># 漫才</span>
+      <span class="tag"># ポッドキャスト</span>
+    </div>
+    <div class="hero-cta">
+      <a href="https://open.spotify.com/show/6cG7RNiIznNff3Ol2HjUHk" target="_blank" rel="noopener" class="btn-primary">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+        Spotifyで聴く
+      </a>
+      <a href="#episodes" class="btn-ghost">エピソード一覧</a>
+    </div>
+  </div>
+
+  <div class="scroll-cue">SCROLL</div>
+</section>
+
+<hr class="neon-hr">
+
+<!-- ABOUT -->
+<div class="wrap" id="about">
+  <p class="eyebrow">ABOUT THE SHOW</p>
+  <h2 class="sec-title">私たちについて</h2>
+  <div class="about-grid">
+    <div class="about-body">
+      <p>「早稲女の放課後」は、早稲田大学出身の全く異なるバックグラウンドを持つ3人の女性によるポッドキャストです。</p>
+      <p>恋愛、キャリア、友情、社会問題…。笑いあり、涙あり、時には漫才ありで、人生のあれこれを本音で語り合います。</p>
+      <p>放課後のように気軽に、でも真剣に。あなたの日常に寄り添う会話をお届けします。</p>
+      <div class="members">
+        <div class="member">
+          <div class="member-avatar">👩</div>
+          <div>
+            <div class="member-name">Member A</div>
+            <div class="member-sub">早稲田大学 ○○学部</div>
+          </div>
+        </div>
+        <div class="member">
+          <div class="member-avatar">👩</div>
+          <div>
+            <div class="member-name">Member B</div>
+            <div class="member-sub">早稲田大学 ○○学部</div>
+          </div>
+        </div>
+        <div class="member">
+          <div class="member-avatar">👩</div>
+          <div>
+            <div class="member-name">Member C</div>
+            <div class="member-sub">早稲田大学 ○○学部</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="bubble">
+        <p class="bubble-text">笑いあり<br>涙あり<br>漫才あり。<br>これが私たちの<br>放課後。</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="neon-hr">
+
+<!-- EPISODES -->
+<div class="wrap" id="episodes">
+  <p class="eyebrow">LATEST EPISODES</p>
+  <h2 class="sec-title">エピソード</h2>
+  <div class="episodes-grid">
+    <div class="ep-card">
+      <div class="ep-num">EP. 002</div>
+      <div class="ep-title">○○について本音トーク</div>
+      <div class="ep-desc">今回は○○について3人でがっつり議論。それぞれの経験と本音を包み隠さず語ります。</div>
+      <div class="ep-foot">
+        <span>2024.04.23 · 45分</span>
+        <a href="https://open.spotify.com/show/6cG7RNiIznNff3Ol2HjUHk" target="_blank" rel="noopener" class="play" aria-label="Spotifyで聴く">▶</a>
+      </div>
+    </div>
+    <div class="ep-card">
+      <div class="ep-num">EP. 001</div>
+      <div class="ep-title">はじめまして！私たちのこと</div>
+      <div class="ep-desc">記念すべき第1回！3人のバックグラウンドと、なぜこのポッドキャストを始めたのかを話します。</div>
+      <div class="ep-foot">
+        <span>2024.04.16 · 38分</span>
+        <a href="https://open.spotify.com/show/6cG7RNiIznNff3Ol2HjUHk" target="_blank" rel="noopener" class="play" aria-label="Spotifyで聴く">▶</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr class="neon-hr">
+
+<!-- LISTEN ON -->
+<div class="wrap" id="listen">
+  <p class="eyebrow">WHERE TO LISTEN</p>
+  <h2 class="sec-title">聴き方</h2>
+  <div class="listen-grid">
+
+    <a href="https://open.spotify.com/show/6cG7RNiIznNff3Ol2HjUHk" target="_blank" rel="noopener" class="listen-card">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="#FF69B4"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+      <span class="listen-label">Spotify</span>
+      <span class="listen-sub">ポッドキャスト</span>
+      <span class="listen-go">→ 聴く</span>
+    </a>
+
+    <a href="#" class="listen-card">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="#FF69B4"><path d="M12.152 6.896c-.948 0-2.415-1.078-3.96-1.04-2.04.027-3.91 1.183-4.961 3.014-2.117 3.675-.546 9.103 1.519 12.09 1.013 1.454 2.208 3.09 3.792 3.039 1.52-.065 2.09-.987 3.935-.987 1.831 0 2.35.987 3.96.948 1.637-.026 2.676-1.48 3.676-2.948 1.156-1.688 1.636-3.325 1.662-3.415-.039-.013-3.182-1.221-3.22-4.857-.026-3.04 2.48-4.494 2.597-4.559-1.429-2.09-3.623-2.324-4.39-2.376-2-.156-3.675 1.09-4.61 1.09zM15.53 3.83c.843-1.012 1.4-2.427 1.245-3.83-1.207.052-2.662.805-3.532 1.818-.78.896-1.454 2.338-1.273 3.714 1.338.104 2.715-.688 3.559-1.701"/></svg>
+      <span class="listen-label">Apple Podcasts</span>
+      <span class="listen-sub">近日公開予定</span>
+      <span class="listen-go">→ 聴く</span>
+    </a>
+
+    <a href="#" class="listen-card">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="#FF69B4"><path d="M11.64 0C5.213 0 0 5.213 0 11.64c0 6.427 5.213 11.64 11.64 11.64 6.427 0 11.64-5.213 11.64-11.64C23.28 5.213 18.067 0 11.64 0zm5.285 16.806a.72.72 0 0 1-.991.24c-2.717-1.66-6.138-2.035-10.166-1.115a.72.72 0 0 1-.32-1.403c4.407-.988 8.186-.56 11.237 1.287a.72.72 0 0 1 .24.991zm1.41-3.138a.9.9 0 0 1-1.237.3c-3.109-1.911-7.848-2.466-11.523-1.349a.9.9 0 1 1-.522-1.722c4.202-1.275 9.424-.656 12.982 1.534a.9.9 0 0 1 .3 1.237zm.12-3.264C15.15 8.28 8.904 8.07 5.37 9.15a1.08 1.08 0 1 1-.626-2.066C9.14 5.864 15.99 6.108 20.16 8.64a1.08 1.08 0 0 1-1.705 1.764z"/></svg>
+      <span class="listen-label">Amazon Music</span>
+      <span class="listen-sub">近日公開予定</span>
+      <span class="listen-go">→ 聴く</span>
+    </a>
+
+    <a href="#" class="listen-card">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="#FF69B4"><path d="M12 0C5.372 0 0 5.372 0 12s5.372 12 12 12 12-5.372 12-12S18.628 0 12 0zm0 3.6c2.4 0 4.56.888 6.204 2.34L5.94 18.204A8.358 8.358 0 0 1 3.6 12c0-4.632 3.768-8.4 8.4-8.4zm0 16.8a8.358 8.358 0 0 1-6.204-2.34L18.06 5.796A8.358 8.358 0 0 1 20.4 12c0 4.632-3.768 8.4-8.4 8.4z"/></svg>
+      <span class="listen-label">その他</span>
+      <span class="listen-sub">各種プラットフォーム</span>
+      <span class="listen-go">→ 近日追加</span>
+    </a>
+
+  </div>
+</div>
+
+<hr class="neon-hr">
+
+<!-- SNS -->
+<div class="wrap" id="sns">
+  <div class="sns-section">
+    <p class="eyebrow">CONNECT WITH US</p>
+    <h2 class="sec-title">SNS・お問い合わせ</h2>
+    <p class="sns-tagline">
+      感想・ご意見はSNSで <strong style="color:var(--pink)">#早稲女の放課後</strong> をつけて投稿してください。<br>
+      お仕事・コラボのご依頼はDMにてお願いします。
+    </p>
+
+    <div class="sns-grid">
+      <a href="#" class="sns-card" id="instagram-link">
+        <!-- Instagram -->
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#FF69B4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+          <circle cx="12" cy="12" r="4"/>
+          <circle cx="17.5" cy="6.5" r="1" fill="#FF69B4" stroke="none"/>
+        </svg>
+        <span>Instagram</span>
+      </a>
+
+      <a href="#" class="sns-card">
+        <!-- X / Twitter -->
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="#FF69B4">
+          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.737-8.835L1.254 2.25H8.08l4.261 5.636 5.903-5.636Zm-1.161 17.52h1.833L7.084 4.126H5.117Z"/>
+        </svg>
+        <span>X (Twitter)</span>
+      </a>
+
+      <a href="https://open.spotify.com/show/6cG7RNiIznNff3Ol2HjUHk" target="_blank" rel="noopener" class="sns-card">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="#FF69B4"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+        <span>Spotify</span>
+      </a>
+
+      <a href="#" class="sns-card">
+        <!-- TikTok -->
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="#FF69B4">
+          <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.78a4.85 4.85 0 0 1-1.01-.09Z"/>
+        </svg>
+        <span>TikTok</span>
+      </a>
+    </div>
+
+    <div class="hashtag">#早稲女の放課後</div>
+  </div>
+</div>
+
+<hr class="neon-hr">
+
+<footer class="footer">
+  <span class="footer-logo">早稲女の放課後</span>
+  <span class="footer-copy">© 2024 早稲女の放課後. All rights reserved.</span>
+</footer>
+
+<script>
+// ── カスタムカーソル ───────────────────────
+const cur = document.getElementById('cur');
+const ring = document.getElementById('cur-ring');
+let mx = 0, my = 0, rx = 0, ry = 0;
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+(function animRing() {
+  rx += (mx - rx) * .13; ry += (my - ry) * .13;
+  cur.style.cssText  += `left:${mx-5}px;top:${my-5}px`;
+  ring.style.cssText += `left:${rx-14}px;top:${ry-14}px`;
+  requestAnimationFrame(animRing);
+})();
+
+// ── パーティクル ──────────────────────────
+const cvs = document.getElementById('cvs');
+const c   = cvs.getContext('2d');
+function resize() { cvs.width = innerWidth; cvs.height = innerHeight; }
+resize(); addEventListener('resize', resize);
+
+const pts = Array.from({length: 70}, () => ({
+  x: Math.random() * innerWidth,
+  y: Math.random() * innerHeight,
+  r: Math.random() * 1.5 + .4,
+  vx: (Math.random() - .5) * .4,
+  vy: (Math.random() - .5) * .4,
+  a: Math.random() * .4 + .08,
+}));
+
+(function draw() {
+  c.clearRect(0, 0, cvs.width, cvs.height);
+  pts.forEach(p => {
+    c.beginPath();
+    c.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    c.fillStyle = `rgba(255,0,204,${p.a})`;
+    c.shadowBlur = 12; c.shadowColor = '#FF00CC';
+    c.fill();
+    p.x += p.vx; p.y += p.vy;
+    if (p.x < 0) p.x = cvs.width;
+    if (p.x > cvs.width) p.x = 0;
+    if (p.y < 0) p.y = cvs.height;
+    if (p.y > cvs.height) p.y = 0;
+  });
+  requestAnimationFrame(draw);
+})();
+
+// ── スクロール表示 ─────────────────────────
+const io = new IntersectionObserver(entries => {
+  entries.forEach((e, i) => {
+    if (e.isIntersecting) {
+      e.target.style.transition = `opacity .6s ${i * .08}s ease, transform .6s ${i * .08}s ease, border-color .4s, box-shadow .4s`;
+      e.target.style.opacity = '1';
+      e.target.style.transform = 'translateY(0)';
+      io.unobserve(e.target);
+    }
+  });
+}, { threshold: .1 });
+
+document.querySelectorAll(
+  '.ep-card, .listen-card, .sns-card, .member, .bubble'
+).forEach(el => {
+  el.style.opacity = '0';
+  el.style.transform = 'translateY(22px)';
+  io.observe(el);
+});
+</script>
+
+</body>
+</html>
